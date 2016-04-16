@@ -151,9 +151,15 @@ typedef std::array<CKStateConfiguration, 8> CKStateConfigurationArray;
   });
 
   UIEdgeInsets contentEdgeInsets = UIEdgeInsetsZero;
-  auto it = passedAttributes.find(@selector(setContentEdgeInsets:));
-  if (it != passedAttributes.end()) {
-    contentEdgeInsets = [it->second UIEdgeInsetsValue];
+  auto itContent = passedAttributes.find(@selector(setContentEdgeInsets:));
+  if (itContent != passedAttributes.end()) {
+    contentEdgeInsets = [itContent->second UIEdgeInsetsValue];
+  }
+
+  UIEdgeInsets titleEdgeInsets = UIEdgeInsetsZero;
+  auto itTitle = passedAttributes.find(@selector(setTitleEdgeInsets:));
+  if (itTitle != passedAttributes.end()) {
+    titleEdgeInsets = [itTitle->second UIEdgeInsetsValue];
   }
 
   CKButtonComponent *b = [super
@@ -171,7 +177,7 @@ typedef std::array<CKStateConfiguration, 8> CKStateConfigurationArray;
   UIControlState state = (selected ? UIControlStateSelected : UIControlStateNormal)
                        | (enabled ? UIControlStateNormal : UIControlStateDisabled);
   b->_intrinsicSize = intrinsicSize(valueForState(titles, state), titleFont, valueForState(images, state),
-                                    valueForState(backgroundImages, state), contentEdgeInsets);
+                                    valueForState(backgroundImages, state), contentEdgeInsets, titleEdgeInsets);
   return b;
 }
 
@@ -225,7 +231,7 @@ static T valueForState(const std::unordered_map<UIControlState, T> &m, UIControl
 }
 
 static CGSize intrinsicSize(NSString *title, UIFont *titleFont, UIImage *image,
-                            UIImage *backgroundImage, UIEdgeInsets contentEdgeInsets)
+                            UIImage *backgroundImage, UIEdgeInsets contentEdgeInsets, UIEdgeInsets titleEdgeInsets)
 {
   // This computation is based on observing [UIButton -sizeThatFits:], which uses the deprecated method
   // sizeWithFont in iOS 7 and iOS 8
@@ -235,7 +241,7 @@ static CGSize intrinsicSize(NSString *title, UIFont *titleFont, UIImage *image,
 #pragma clang diagnostic pop
   CGSize imageSize = image.size;
   CGSize contentSize = {
-    titleSize.width + imageSize.width + contentEdgeInsets.left + contentEdgeInsets.right,
+    titleSize.width + imageSize.width + contentEdgeInsets.left + contentEdgeInsets.right + titleEdgeInsets.left + titleEdgeInsets.right,
     MAX(titleSize.height, imageSize.height) + contentEdgeInsets.top + contentEdgeInsets.bottom
   };
   CGSize backgroundImageSize = backgroundImage.size;
